@@ -123,10 +123,10 @@ export default function LeadershipPage() {
             <div className="absolute top-1/2 left-0 w-full h-[1px] bg-white/10 -z-0"></div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-16 max-w-5xl mx-auto">
-            <TeamMemberCard name="Anil Kumar" role="Senior Engineer" imageSrc="/team/anil kumar.png" />
+            <TeamMemberCard name="Anil Kumar" role="Senior Engineer" imageSrc="/team/anil-kumar.png" />
             {/* Note: Correct filename structure is Bhabesh Roy Medhi.png, correct pathing is team/ */}
             <TeamMemberCard name="Bhabesh Roy Medhi" role="Technical Head" imageSrc="/team/Bhabesh Roy Medhi.png" />
-            <TeamMemberCard name="Baint Kaur" role="Senior Developer" imageSrc="/team/baint kaur.png" />
+            <TeamMemberCard name="Baint Kaur" role="Senior Developer" imageSrc="/team/baint-kaur.png" />
           </div>
         </div>
 
