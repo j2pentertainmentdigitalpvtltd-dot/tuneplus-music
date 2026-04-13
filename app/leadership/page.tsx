@@ -3,23 +3,21 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Users, Rocket, Award, ShieldCheck, ArrowRight, Zap, Target, Heart } from 'lucide-react';
-// =========================================================================
-// === NOTE: Ensure FiberNetwork path is correct based on project layout ===
-// === (Relative path changed as leadership page might be a folder level ===
-// ===  deeper than previous assumptions)                                ===
-// =========================================================================
-import { FiberNetwork } from '../page'; // Call existing, correct Chameleon base background
+import { Users, Rocket, Award, ShieldCheck, ArrowRight, Zap, Target, Heart, Menu, X } from 'lucide-react';
+import { FiberNetwork } from '../page'; 
 
 export default function LeadershipPage() {
   const DASHBOARD_URL = 'https://app.tuneplusmusic.com'; 
   const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false); 
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
     <div className="min-h-screen bg-[#010205] font-sans text-slate-300 selection:bg-cyan-500/30 overflow-x-hidden relative">
@@ -32,7 +30,7 @@ export default function LeadershipPage() {
       </div>
 
       {/* ================= 2. PREMIUM STANDARD NAVBAR ================= */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-[#010205]/90 backdrop-blur-xl border-b border-white/[0.05] py-4' : 'bg-transparent py-6'}`}>
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled || mobileMenuOpen ? 'bg-[#010205]/95 backdrop-blur-xl border-b border-white/[0.05] py-4' : 'bg-transparent py-6'}`}>
         <div className="max-w-[1400px] mx-auto px-6 flex items-center justify-between relative z-10">
           <Link href="/" className="flex items-center gap-3 group h-12">
              <div className="relative w-48 h-full group-hover:scale-105 transition-transform">
@@ -50,14 +48,40 @@ export default function LeadershipPage() {
             <Link href="/white-label" className="text-cyan-400 hover:text-cyan-300 transition-colors drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]">White Label SaaS</Link>
           </div>
 
-          <div className="flex items-center gap-6">
-            <a href={`${DASHBOARD_URL}/login`} className="hidden md:block font-bold text-[12px] uppercase tracking-widest text-slate-400 hover:text-white transition-colors">Login</a>
+          <div className="hidden xl:flex items-center gap-6">
+            <a href={`${DASHBOARD_URL}/login`} className="font-bold text-[12px] uppercase tracking-widest text-slate-400 hover:text-white transition-colors">Login</a>
             <a href={`${DASHBOARD_URL}/signup`} className="group relative overflow-hidden inline-flex bg-cyan-600 text-white px-8 py-3.5 rounded-full font-bold text-[12px] uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)]">
               <span className="relative z-10 transition-colors group-hover:text-white">Sign Up Free</span>
               <div className="absolute inset-0 h-full w-0 bg-blue-600 transition-all duration-300 ease-out group-hover:w-full z-0"></div>
             </a>
           </div>
+
+          <button 
+            className="xl:hidden text-white p-2 focus:outline-none"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X size={28} className="text-cyan-400" /> : <Menu size={28} className="text-white" />}
+          </button>
         </div>
+
+        {mobileMenuOpen && (
+          <div className="xl:hidden absolute top-full left-0 w-full bg-[#010205]/95 backdrop-blur-xl border-b border-white/10 shadow-2xl py-6 px-6 flex flex-col gap-6">
+            <Link href="/features" onClick={closeMobileMenu} className="font-bold text-[13px] uppercase tracking-widest text-slate-300 hover:text-white">Features</Link>
+            <Link href="/services" onClick={closeMobileMenu} className="font-bold text-[13px] uppercase tracking-widest text-slate-300 hover:text-white">Services</Link>
+            <Link href="/splits" onClick={closeMobileMenu} className="font-bold text-[13px] uppercase tracking-widest text-slate-300 hover:text-white">Splits</Link>
+            <Link href="/accelerator" onClick={closeMobileMenu} className="font-bold text-[13px] uppercase tracking-widest text-slate-300 hover:text-white">Accelerator</Link>
+            <Link href="/pricing" onClick={closeMobileMenu} className="font-bold text-[13px] uppercase tracking-widest text-slate-300 hover:text-white">Pricing</Link>
+            <Link href="/stores" onClick={closeMobileMenu} className="font-bold text-[13px] uppercase tracking-widest text-slate-300 hover:text-white">Stores</Link>
+            <Link href="/white-label" onClick={closeMobileMenu} className="font-bold text-[13px] uppercase tracking-widest text-cyan-400 drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]">White Label SaaS</Link>
+            
+            <div className="w-full h-[1px] bg-white/10 my-2"></div>
+            
+            <a href={`${DASHBOARD_URL}/login`} onClick={closeMobileMenu} className="font-bold text-[13px] uppercase tracking-widest text-slate-300 hover:text-white">Login</a>
+            <a href={`${DASHBOARD_URL}/signup`} onClick={closeMobileMenu} className="bg-cyan-600 text-white text-center px-8 py-4 rounded-full font-bold text-[13px] uppercase tracking-widest shadow-[0_0_20px_rgba(6,182,212,0.3)]">
+              Sign Up Free
+            </a>
+          </div>
+        )}
       </nav>
 
       {/* ================= 3. HERO SECTION ================= */}
@@ -86,22 +110,19 @@ export default function LeadershipPage() {
             <div className="absolute top-1/2 left-0 w-full h-[1px] bg-white/10 -z-0"></div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-16 max-w-3xl mx-auto">
-            {/* Note: Correct filename structure is Bhabesh Roy Medhi.png, correct pathing is team/ */}
-            <TeamMemberCard name="Bhabesh Roy Medhi" role="Founder & CEO" imageSrc="/team/Bhabesh Roy Medhi.png" />
+            <TeamMemberCard name="Bhabesh Roy Medhi" role="Director, Founder & CEO" imageSrc="/team/Bhabesh Roy Medhi.png" />
             <TeamMemberCard name="Jitu Roy Medhi" role="Managing Director (MD)" imageSrc="/team/jitu medhi.png" />
           </div>
         </div>
 
-        {/* --- DIRECTORS --- */}
+        {/* --- DIRECTORS --- (Centered perfectly with max-w-sm) */}
         <div className="mb-32">
           <div className="text-center mb-16 relative">
             <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight uppercase relative z-10 inline-block bg-[#010205] px-6">Directors</h2>
             <div className="absolute top-1/2 left-0 w-full h-[1px] bg-white/10 -z-0"></div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-16 max-w-3xl mx-auto">
+          <div className="grid grid-cols-1 gap-16 max-w-sm mx-auto">
             <TeamMemberCard name="Pranab Jyoti Kalita" role="Director" imageSrc="/team/Pranab j kalita.png" />
-            {/* Note: Correct filename structure is Bhabesh Roy Medhi.png, correct pathing is team/ */}
-            <TeamMemberCard name="Bhabesh Roy Medhi" role="Director" imageSrc="/team/Bhabesh Roy Medhi.png" />
           </div>
         </div>
 
@@ -116,16 +137,14 @@ export default function LeadershipPage() {
           </div>
         </div>
 
-        {/* --- TECHNICAL TEAM --- */}
+        {/* --- TECHNICAL TEAM --- (Centered for 2 people) */}
         <div className="mb-12">
           <div className="text-center mb-16 relative">
             <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight uppercase relative z-10 inline-block bg-[#010205] px-6">Technical Team</h2>
             <div className="absolute top-1/2 left-0 w-full h-[1px] bg-white/10 -z-0"></div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-16 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-16 max-w-3xl mx-auto">
             <TeamMemberCard name="Anil Kumar" role="Senior Engineer" imageSrc="/team/anil-kumar.png" />
-            {/* Note: Correct filename structure is Bhabesh Roy Medhi.png, correct pathing is team/ */}
-            <TeamMemberCard name="Bhabesh Roy Medhi" role="Technical Head" imageSrc="/team/Bhabesh Roy Medhi.png" />
             <TeamMemberCard name="Baint Kaur" role="Senior Developer" imageSrc="/team/baint-kaur.png" />
           </div>
         </div>
@@ -262,14 +281,12 @@ function TeamMemberCard({ name, role, imageSrc }: { name: string, role: string, 
            <Users size={48} className="opacity-20" />
         </div>
         
-        {/* Note: Update the imageSrc paths in your team/ folder to match correct technical extensions (.png) from image explorer. Case sensitive. */}
         <Image 
           src={imageSrc} 
           alt={name} 
           fill
           className="object-cover relative z-10 group-hover:scale-110 transition-transform duration-700 fallback-bg"
           onError={(e) => {
-            // Hides broken image graphic, Chamleon Standard
             (e.target as HTMLImageElement).style.opacity = '0';
           }}
         />
@@ -278,9 +295,10 @@ function TeamMemberCard({ name, role, imageSrc }: { name: string, role: string, 
         <div className="absolute inset-0 bg-gradient-to-t from-[#010205] via-transparent to-transparent opacity-80 z-20"></div>
       </div>
       
-      {/* Text Density and Standard Usage Upgraded */}
-      <h3 className="text-2xl font-black uppercase tracking-tight text-white mb-2 group-hover:text-cyan-400 transition-colors text-center drop-shadow-lg">{name}</h3>
+      {/* Professional Touch: Name, Role and animated Accent Line */}
+      <h3 className="text-2xl font-black uppercase tracking-tight text-white mb-1 group-hover:text-cyan-400 transition-colors text-center drop-shadow-lg">{name}</h3>
       <p className="text-slate-400 font-bold text-xs uppercase tracking-widest text-center">{role}</p>
+      <div className="w-8 h-[2px] bg-cyan-500/50 mt-3 group-hover:w-16 transition-all duration-300 rounded-full"></div>
     </div>
   );
 }

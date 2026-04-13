@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+// Ye line humne add ki hai naye component ko import karne ke liye
+import Navbar from "./components/Navbar"; 
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -12,7 +14,6 @@ export const metadata: Metadata = {
     template: "%s | TunePlus Music"
   },
   description: "India's leading music distribution platform. Upload music to Spotify, Apple Music, JioSaavn & TikTok. Keep 100% ownership. Start for ₹999/year.",
-  
   keywords: [
     "music distribution India", 
     "upload music on spotify", 
@@ -25,8 +26,6 @@ export const metadata: Metadata = {
     "independent artist tools",
     "DistroKid alternative India"
   ],
-
-  // Google indexing ke liye robots settings
   robots: {
     index: true,
     follow: true,
@@ -38,8 +37,6 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-
-  // Social Media Previews
   openGraph: {
     type: "website",
     locale: "en_IN",
@@ -48,21 +45,18 @@ export const metadata: Metadata = {
     description: "Go viral with TunePlus. Distribute your music to 150+ stores and keep all your rights.",
     siteName: "TunePlus Music",
     images: [{
-      url: "/logos/og-image.png", // Make sure to put an image at this path in public folder
+      url: "/logos/og-image.png",
       width: 1200,
       height: 630,
       alt: "TunePlus Music Dashboard Preview",
     }],
   },
-
   twitter: {
     card: "summary_large_image",
     title: "TunePlus Music | Sell Your Music Everywhere",
     description: "India's fastest growing music aggregator.",
     images: ["/logos/og-image.png"],
   },
-
-  // Canonical tag duplicate content issues hatane ke liye
   alternates: {
     canonical: 'https://www.tuneplusmusic.com',
   },
@@ -76,10 +70,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Verification tags agar Google Search Console use kar rahe ho toh yahan dalo */}
         <meta name="google-site-verification" content="YOUR_VERIFICATION_CODE" />
       </head>
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        {/* Naya Navbar component yahan lagaya gaya hai */}
+        <Navbar />
+        {children}
+      </body>
     </html>
   );
 }

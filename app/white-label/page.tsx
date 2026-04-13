@@ -3,14 +3,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import Script from 'next/script'; // 🚀 ADDED FOR v3
 import { 
   ArrowRight, Database, ShieldCheck, CheckCircle2, 
   Send, Network, Globe, Zap, LineChart, 
   Server, Fingerprint, Activity, Coins, 
   LayoutDashboard, Key, Users, CreditCard, PlayCircle, Loader2
 } from 'lucide-react';
-// 🚀 REAL CAPTCHA IMPORT
-import ReCAPTCHA from "react-google-recaptcha";
 
 // ================= 1. FIBER NETWORK BACKGROUND =================
 const FiberNetwork = () => {
@@ -166,38 +165,50 @@ const TiltImage = () => {
 export default function EnterprisePage() {
   const DASHBOARD_URL = 'https://app.tuneplusmusic.com'; 
   const [formStatus, setFormStatus] = useState<'idle' | 'loading' | 'success'>('idle');
-  
-  // 🚀 REAL Captcha State
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
+  // 🚀 v3 Submit Handler
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
-    if (!captchaToken) {
-      alert("Please verify that you are human.");
-      return;
-    }
-
     setFormStatus('loading');
     
+    // Capturing form data before grecaptcha callback
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData.entries());
+
     try {
-      const formData = new FormData(e.currentTarget);
-      const data = Object.fromEntries(formData.entries());
-      
-      const payload = { ...data, captchaToken };
-
-      const res = await fetch('/api/send-demo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (res.ok) {
-        setFormStatus('success');
-      } else {
+      // @ts-ignore
+      if (!window.grecaptcha) {
+        alert("Security system loading. Please try again in a second.");
         setFormStatus('idle');
-        alert("Failed to send request. Check backend console for SMTP or Captcha errors.");
+        return;
       }
+
+      // @ts-ignore
+      window.grecaptcha.ready(async () => {
+        try {
+          // @ts-ignore
+          const token = await window.grecaptcha.execute(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY, {action: 'submit'});
+          
+          const payload = { ...data, captchaToken: token };
+
+          const res = await fetch('/api/send-demo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+
+          if (res.ok) {
+            setFormStatus('success');
+          } else {
+            setFormStatus('idle');
+            alert("Failed to send request. Check backend console for SMTP or Captcha errors.");
+          }
+        } catch (captchaErr) {
+          console.error(captchaErr);
+          setFormStatus('idle');
+          alert("Failed to generate security token.");
+        }
+      });
     } catch (err) {
       console.error(err);
       setFormStatus('idle');
@@ -207,6 +218,13 @@ export default function EnterprisePage() {
 
   return (
     <div className="min-h-screen bg-[#010205] text-slate-300 selection:bg-cyan-500/30 overflow-x-hidden relative">
+      
+      {/* 🚀 LOAD RECAPTCHA v3 SCRIPT IN BACKGROUND */}
+      <Script 
+        src={`https://www.google.com/recaptcha/api.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`} 
+        strategy="afterInteractive" 
+      />
+
       <FiberNetwork />
       
       {/* Marquee CSS */}
@@ -233,7 +251,6 @@ export default function EnterprisePage() {
       {/* ================= NAVBAR (FIXED LOGO SIZE) ================= */}
       <nav className="fixed top-0 w-full bg-[#010205]/90 backdrop-blur-xl border-b border-white/[0.05] z-50 transition-all">
         <div className="max-w-[1400px] mx-auto px-6 h-24 flex items-center justify-between relative z-10">
-          {/* Logo updated to h-12 and w-48 to match all other pages perfectly */}
           <Link href="/" className="flex items-center gap-3 group h-12">
              <div className="relative w-48 h-full group-hover:scale-105 transition-transform">
                 <Image src="/logos/tuneplus-logo.png" alt="TunePlus Logo" fill className="object-contain object-left drop-shadow-[0_0_10px_rgba(59,130,246,0.3)]" priority/>
@@ -264,7 +281,7 @@ export default function EnterprisePage() {
       <section className="relative pt-48 pb-20 px-6 text-center z-10">
         <div className="max-w-4xl mx-auto flex flex-col items-center">
           <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-cyan-500/20 text-cyan-400 font-bold text-[10px] uppercase tracking-widest mb-10 bg-cyan-950/20 shadow-inner">
-            <Server size={14}/> Master Distribution Node
+            <Server size={14}/> Tuneplus Distribution
           </div>
           <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter text-white mb-10 leading-[0.9]">
             Launch Your Brand.<br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Industry Scale.</span>
@@ -400,7 +417,7 @@ export default function EnterprisePage() {
             <CheckCircle2 size={60} className="text-emerald-400 mx-auto mb-6" />
             <h3 className="text-3xl font-black text-white mb-4 uppercase">Transmission Success</h3>
             <p className="text-slate-400 mb-8">Our B2B team will review your company details and contact you shortly.</p>
-            <button onClick={() => {setFormStatus('idle'); setCaptchaToken(null);}} className="text-cyan-400 font-bold uppercase text-xs tracking-widest border-b border-cyan-400 pb-1">Submit Another Request</button>
+            <button onClick={() => setFormStatus('idle')} className="text-cyan-400 font-bold uppercase text-xs tracking-widest border-b border-cyan-400 pb-1">Submit Another Request</button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="bg-[#050b14]/80 backdrop-blur-3xl rounded-[2.5rem] p-8 md:p-14 border border-white/[0.05] shadow-2xl grid grid-cols-1 md:grid-cols-2 gap-8 relative overflow-hidden">
@@ -451,27 +468,23 @@ export default function EnterprisePage() {
               <textarea name="message" required rows={4} className="bg-[#010205] border border-white/10 rounded-xl p-4 text-white focus:border-cyan-500 outline-none transition-all resize-none" placeholder="Briefly describe your distribution needs..."></textarea>
             </div>
 
-            {/* ================= REAL GOOGLE CAPTCHA UI ================= */}
-            <div className="md:col-span-2 flex items-center justify-center my-2">
-              <ReCAPTCHA
-                sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "YOUR_SITE_KEY_HERE"}
-                onChange={(token) => setCaptchaToken(token)}
-                theme="dark" 
-              />
-            </div>
-
             <button 
               type="submit" 
-              disabled={formStatus === 'loading' || !captchaToken} 
+              disabled={formStatus === 'loading'} 
               className="md:col-span-2 mt-4 group relative overflow-hidden bg-cyan-600 text-white py-5 rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-cyan-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               <span className="relative z-10 transition-colors group-hover:text-white flex items-center justify-center gap-2">
                  {formStatus === 'loading' ? 'Securing Transmission...' : <>Submit Enterprise Request <Send size={16}/></>}
               </span>
-              {captchaToken && formStatus !== 'loading' && (
+              {formStatus !== 'loading' && (
                  <div className="absolute inset-0 h-full w-0 bg-blue-600 transition-all duration-300 ease-out group-hover:w-full z-0"></div>
               )}
             </button>
+            <div className="md:col-span-2 text-center text-[10px] text-slate-600 mt-2">
+              This site is protected by reCAPTCHA and the Google 
+              <a href="https://policies.google.com/privacy" className="text-cyan-500 hover:underline"> Privacy Policy</a> and 
+              <a href="https://policies.google.com/terms" className="text-cyan-500 hover:underline"> Terms of Service</a> apply.
+            </div>
           </form>
         )}
       </section>

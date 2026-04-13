@@ -4,10 +4,9 @@ import nodemailer from 'nodemailer';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    // Yahan captchaToken bhi receive karenge
     const { name, email, company, catalogSize, phone, website, message, captchaToken } = body;
 
-    // 1. Google reCAPTCHA Verification
+    // 1. Google reCAPTCHA v3 Verification
     if (!captchaToken) {
       return NextResponse.json({ error: "Captcha is missing" }, { status: 400 });
     }
@@ -20,8 +19,10 @@ export async function POST(req: Request) {
     
     const verifyData = await verifyRes.json();
     
-    if (!verifyData.success) {
-      return NextResponse.json({ error: "Bot detected by Google" }, { status: 403 });
+    // v3 Score Logic (0.5 se upar human hota hai)
+    if (!verifyData.success || verifyData.score < 0.5) {
+      console.log("Bot blocked! Score:", verifyData.score);
+      return NextResponse.json({ error: "Bot detected by Google v3" }, { status: 403 });
     }
 
     // 2. Email Sending (Agar Human verified ho gaya)
@@ -51,6 +52,7 @@ export async function POST(req: Request) {
           <p><strong>Website:</strong> ${website || 'N/A'}</p>
           <p><strong>Catalog Size:</strong> ${catalogSize}</p>
           <p><strong>Requirements:</strong><br/>${message}</p>
+          <p style="color: green; font-size: 12px; margin-top: 20px;">✓ Passed Google v3 Security Check (Score: ${verifyData.score})</p>
         </div>
       `,
     };
